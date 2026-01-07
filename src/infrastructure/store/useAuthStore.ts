@@ -7,6 +7,7 @@ interface AuthState {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
+    isCheckingAuth: boolean;
     error: string | null;
 
     login: (data: LoginInput) => Promise<void>;
@@ -23,6 +24,7 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             isAuthenticated: false,
             isLoading: false,
+            isCheckingAuth: true,
             error: null,
 
             setUser: (user) => set({ user, isAuthenticated: !!user }),
@@ -42,8 +44,10 @@ export const useAuthStore = create<AuthState>()(
                         throw new Error(response.message || 'Login failed');
                     }
                 } catch (error: any) {
-                    set({ error: error.message, isLoading: false });
-                    throw error;
+                    // error could be the API response object if rejected by axios interceptor
+                    const errorMessage = error.message || error.toString() || 'Authentication failed';
+                    set({ error: errorMessage, isLoading: false });
+                    throw new Error(errorMessage);
                 }
             },
 
@@ -51,17 +55,19 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: true, error: null });
                 try {
                     const response = await authService.register(data);
-                    if (response.success && response.data) {
-                        set({
-                            user: response.data.user,
-                            isAuthenticated: true,
-                            isLoading: false
-                        });
+                    if (response.success) {
+                        set({ isLoading: false });
                     } else {
+                        // If there are field errors, throw the whole response so the hook can use them
+                        if (response.errors && response.errors.length > 0) {
+                            throw response;
+                        }
                         throw new Error(response.message || 'Registration failed');
                     }
                 } catch (error: any) {
-                    set({ error: error.message, isLoading: false });
+                    // Handle both Error objects and ApiResponse objects
+                    const errorMessage = error.message || (typeof error === 'object' && error.message) || 'Registration failed';
+                    set({ error: errorMessage, isLoading: false });
                     throw error;
                 }
             },
@@ -71,31 +77,40 @@ export const useAuthStore = create<AuthState>()(
                 try {
                     await authService.logout();
                 } finally {
-                    set({ user: null, isAuthenticated: false, isLoading: false });
+                    // Clear all local storage to be safe and reset state
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    set({
+                        user: null,
+                        isAuthenticated: false,
+                        isLoading: false,
+                        error: null
+                    });
                 }
             },
 
             checkAuth: async () => {
                 const token = localStorage.getItem('accessToken');
                 if (!token) {
-                    set({ isAuthenticated: false, isLoading: false });
+                    set({ isAuthenticated: false, isLoading: false, isCheckingAuth: false });
                     return;
                 }
 
-                set({ isLoading: true });
+                set({ isCheckingAuth: true });
                 try {
                     const response = await authService.getMe();
                     if (response.success && response.data) {
                         set({
                             user: response.data.user,
                             isAuthenticated: true,
-                            isLoading: false
                         });
                     } else {
-                        set({ isAuthenticated: false, isLoading: false });
+                        set({ isAuthenticated: false });
                     }
                 } catch (error) {
-                    set({ isAuthenticated: false, isLoading: false });
+                    set({ isAuthenticated: false });
+                } finally {
+                    set({ isCheckingAuth: false, isLoading: false });
                 }
             },
         }),

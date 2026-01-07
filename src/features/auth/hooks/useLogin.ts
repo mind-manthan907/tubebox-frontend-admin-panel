@@ -20,10 +20,21 @@ export const useLogin = () => {
     const onSubmit = async (data: LoginInput) => {
         try {
             await login(data);
-            toast.success('Admin access granted');
-            navigate('/');
+            const user = useAuthStore.getState().user;
+
+            if (user?.role === 'ADMIN') {
+                toast.success('Admin access granted');
+                navigate('/');
+            } else {
+                toast.error('Access denied. Admin role required.');
+                // Optionally logout if user is not admin but authenticated as regular user
+                await useAuthStore.getState().logout();
+            }
         } catch (error: any) {
-            toast.error(error.message || 'Authentication failed');
+            const message = error instanceof Error ? error.message : 'Authentication failed';
+            toast.error(message);
+            // Reset only password field
+            form.setValue('password', '');
         }
     };
 

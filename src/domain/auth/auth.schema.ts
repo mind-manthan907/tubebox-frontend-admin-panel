@@ -2,14 +2,14 @@ import { z } from 'zod';
 
 export const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 export const registerSchema = z.object({
     firstName: z.string().min(2, 'First name must be at least 2 characters'),
     lastName: z.string().min(2, 'Last name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -20,22 +20,41 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export interface User {
-    id: string;
+    uuid: string;
     email: string;
     firstName: string;
     lastName: string;
-    avatar?: string;
+    profileUrl: string | null;
     role: 'ADMIN' | 'USER';
+    status: string;
+    isVerified: boolean;
+    lastLogin: string;
     createdAt: string;
     updatedAt: string;
 }
 
 export interface AuthResponse {
     user: User;
-    accessToken: string;
-    refreshToken: string;
+    tokens: {
+        accessToken: string;
+        refreshToken: string;
+    };
 }
 
-export type ApiResponse<T> =
-    | { success: true; data: T; message: string }
-    | { success: false; data: null; message: string; errors?: Record<string, string[]> };
+export interface ApiError {
+    field: string;
+    code: string;
+    message: string;
+}
+
+export type ApiResponse<T> = {
+    success: boolean;
+    status: number;
+    message: string;
+    data: T | null;
+    errors?: ApiError[];
+    metadata: {
+        timestamp: string;
+        version: string;
+    };
+};

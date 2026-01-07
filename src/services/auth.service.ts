@@ -10,18 +10,14 @@ export class AuthService {
 
     async login(data: LoginInput): Promise<ApiResponse<AuthResponse>> {
         const response = await this.repository.login(data);
-        if (response.success && response.data) {
-            this.setTokens(response.data.accessToken, response.data.refreshToken);
+        if (response.success && response.data?.tokens) {
+            this.setTokens(response.data.tokens.accessToken, response.data.tokens.refreshToken);
         }
         return response;
     }
 
     async register(data: RegisterInput): Promise<ApiResponse<AuthResponse>> {
-        const response = await this.repository.register(data);
-        if (response.success && response.data) {
-            this.setTokens(response.data.accessToken, response.data.refreshToken);
-        }
-        return response;
+        return this.repository.register(data);
     }
 
     async logout(): Promise<ApiResponse<void>> {
@@ -36,8 +32,8 @@ export class AuthService {
 
     async refreshToken(token: string): Promise<ApiResponse<AuthResponse>> {
         const response = await this.repository.refreshToken(token);
-        if (response.success && response.data) {
-            this.setTokens(response.data.accessToken, response.data.refreshToken);
+        if (response.success && response.data?.tokens) {
+            this.setTokens(response.data.tokens.accessToken, response.data.tokens.refreshToken);
         }
         return response;
     }

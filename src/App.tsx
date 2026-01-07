@@ -10,13 +10,13 @@ import HomePage from '@/features/dashboard/pages/HomePage';
 import { FullPageLoader } from '@/components/ui/loader';
 
 const App = () => {
-  const { checkAuth, isLoading } = useAuthStore();
+  const { checkAuth, isCheckingAuth } = useAuthStore();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
-  if (isLoading) {
+  if (isCheckingAuth) {
     return <FullPageLoader />;
   }
 

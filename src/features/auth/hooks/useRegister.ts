@@ -23,10 +23,26 @@ export const useRegister = () => {
     const onSubmit = async (data: RegisterInput) => {
         try {
             await registerUser(data);
-            toast.success('Admin account created');
-            navigate('/');
+            toast.success('Admin account created. Please sign in.');
+            navigate('/login');
         } catch (error: any) {
-            toast.error(error.message || 'Registration failed');
+            // Handle validation errors from API
+            if (error.errors && Array.isArray(error.errors)) {
+                error.errors.forEach((err: any) => {
+                    form.setError(err.field as any, {
+                        type: 'manual',
+                        message: err.message
+                    });
+                });
+                toast.error(error.message || 'Validation failed');
+            } else {
+                const message = error instanceof Error ? error.message : 'Registration failed';
+                toast.error(message);
+            }
+
+            // Reset only password fields
+            form.setValue('password', '');
+            form.setValue('confirmPassword', '');
         }
     };
 
