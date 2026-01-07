@@ -24,7 +24,7 @@ export const LoginForm = () => {
                         <Input
                             id="email"
                             type="email"
-                            placeholder="admin@tubebox.com"
+                            placeholder="example@mail.com"
                             {...register('email')}
                             className={errors.email ? 'border-destructive' : ''}
                             disabled={isLoading}
@@ -48,7 +48,7 @@ export const LoginForm = () => {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <Button type="submit" className="w-full my-4" disabled={isLoading}>
                         {isLoading ? <Loader className="mr-2 text-primary-foreground" size={20} /> : null}
                         {isLoading ? 'Authenticating...' : 'Sign In'}
                     </Button>

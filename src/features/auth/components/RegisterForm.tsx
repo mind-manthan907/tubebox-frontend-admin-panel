@@ -53,7 +53,7 @@ export const RegisterForm = () => {
                         <Input
                             id="email"
                             type="email"
-                            placeholder="admin@tubebox.com"
+                            placeholder="example@mail.com"
                             {...register('email')}
                             className={errors.email ? 'border-destructive' : ''}
                             disabled={isLoading}
@@ -89,12 +89,12 @@ export const RegisterForm = () => {
                         )}
                     </div>
                 </CardContent>
-                <CardFooter className="flex flex-col space-y-4">
+                <CardFooter className="flex flex-col my-4">
                     <Button type="submit" className="w-full" disabled={isLoading}>
                         {isLoading ? <Loader className="mr-2 text-primary-foreground" size={20} /> : null}
                         {isLoading ? 'Creating account...' : 'Create Admin Account'}
                     </Button>
-                    <div className="text-sm text-center text-muted-foreground">
+                    <div className="text-sm text-center text-muted-foreground my-2">
                         Already have an account?{' '}
                         <Link to="/login" className="text-primary hover:underline font-medium">
                             Sign In
