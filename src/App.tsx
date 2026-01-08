@@ -7,7 +7,11 @@ import PublicRoute from '@/infrastructure/routes/PublicRoute';
 import LoginPage from '@/features/auth/pages/LoginPage';
 import RegisterPage from '@/features/auth/pages/RegisterPage';
 import HomePage from '@/features/dashboard/pages/HomePage';
+import VideoUploadPage from '@/features/dashboard/pages/VideoUploadPage';
 import { FullPageLoader } from '@/components/ui/loader';
+
+import DashboardLayout from '@/components/layout/DashboardLayout';
+import ProfilePage from '@/features/dashboard/pages/ProfilePage';
 
 const App = () => {
   const { checkAuth, isCheckingAuth } = useAuthStore();
@@ -31,7 +35,11 @@ const App = () => {
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<HomePage />} />
+          <Route element={<DashboardLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/videos/upload" element={<VideoUploadPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Route>
         </Route>
 
         {/* Catch All */}

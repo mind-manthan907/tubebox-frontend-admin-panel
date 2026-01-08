@@ -15,6 +15,7 @@ interface AuthState {
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
     setUser: (user: User | null) => void;
+    updateUser: (user: User) => void;
     setError: (error: string | null) => void;
 }
 
@@ -28,6 +29,7 @@ export const useAuthStore = create<AuthState>()(
             error: null,
 
             setUser: (user) => set({ user, isAuthenticated: !!user }),
+            updateUser: (user) => set({ user }),
             setError: (error) => set({ error }),
 
             login: async (data) => {
@@ -43,9 +45,9 @@ export const useAuthStore = create<AuthState>()(
                     } else {
                         throw new Error(response.message || 'Login failed');
                     }
-                } catch (error: any) {
+                } catch (error) {
                     // error could be the API response object if rejected by axios interceptor
-                    const errorMessage = error.message || error.toString() || 'Authentication failed';
+                    const errorMessage = (error instanceof Error) ? error.message : 'Authentication failed';
                     set({ error: errorMessage, isLoading: false });
                     throw new Error(errorMessage);
                 }
@@ -64,9 +66,15 @@ export const useAuthStore = create<AuthState>()(
                         }
                         throw new Error(response.message || 'Registration failed');
                     }
-                } catch (error: any) {
+                } catch (error) {
                     // Handle both Error objects and ApiResponse objects
-                    const errorMessage = error.message || (typeof error === 'object' && error.message) || 'Registration failed';
+                    let errorMessage = 'Registration failed';
+                    if (error instanceof Error) {
+                        errorMessage = error.message;
+                    } else if (typeof error === 'object' && error !== null && 'message' in error) {
+                        errorMessage = (error as { message: string }).message;
+                    }
+                    
                     set({ error: errorMessage, isLoading: false });
                     throw error;
                 }
@@ -101,13 +109,13 @@ export const useAuthStore = create<AuthState>()(
                     const response = await authService.getMe();
                     if (response.success && response.data) {
                         set({
-                            user: response.data.user,
+                            user: response.data,
                             isAuthenticated: true,
                         });
                     } else {
                         set({ isAuthenticated: false });
                     }
-                } catch (error) {
+                } catch {
                     set({ isAuthenticated: false });
                 } finally {
                     set({ isCheckingAuth: false, isLoading: false });

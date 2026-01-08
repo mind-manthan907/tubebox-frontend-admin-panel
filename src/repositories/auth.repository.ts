@@ -1,11 +1,11 @@
 import api from '@/lib/axios';
-import type { LoginInput, RegisterInput, AuthResponse, ApiResponse } from '@/domain/auth/auth.schema';
+import type { LoginInput, RegisterInput, AuthResponse, ApiResponse, User } from '@/domain/auth/auth.schema';
 
 export interface IAuthRepository {
     login(data: LoginInput): Promise<ApiResponse<AuthResponse>>;
     register(data: RegisterInput): Promise<ApiResponse<AuthResponse>>;
     logout(): Promise<ApiResponse<void>>;
-    getMe(): Promise<ApiResponse<{ user: any }>>;
+    getMe(): Promise<ApiResponse<User>>;
     refreshToken(token: string): Promise<ApiResponse<AuthResponse>>;
 }
 
@@ -22,7 +22,7 @@ export class AuthRepository implements IAuthRepository {
         return api.post('/auth/logout');
     }
 
-    async getMe(): Promise<ApiResponse<{ user: any }>> {
+    async getMe(): Promise<ApiResponse<User>> {
         return api.get('/auth/me');
     }
 

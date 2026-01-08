@@ -1,5 +1,5 @@
 import { authRepository, type IAuthRepository } from '@/repositories/auth.repository';
-import type { LoginInput, RegisterInput, AuthResponse, ApiResponse } from '@/domain/auth/auth.schema';
+import type { LoginInput, RegisterInput, AuthResponse, ApiResponse, User } from '@/domain/auth/auth.schema';
 
 export class AuthService {
     private repository: IAuthRepository;
@@ -26,7 +26,7 @@ export class AuthService {
         return response;
     }
 
-    async getMe(): Promise<ApiResponse<{ user: any }>> {
+    async getMe(): Promise<ApiResponse<User>> {
         return this.repository.getMe();
     }
 

@@ -53,7 +53,7 @@ describe('AuthStore', () => {
 
             try {
                 await useAuthStore.getState().login({ email: 'test@test.com', password: 'password' });
-            } catch (e) {
+            } catch {
                 // Expected
             }
 
@@ -114,7 +114,7 @@ describe('AuthStore', () => {
             vi.mocked(authService.getMe).mockResolvedValueOnce({
                 success: true as const,
                 status: 200,
-                data: { user: mockUser },
+                data: mockUser,
                 message: 'Success',
                 metadata: { timestamp: '', version: '' }
             });

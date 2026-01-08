@@ -5,6 +5,11 @@ export const loginSchema = z.object({
     password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
+export const userProfileSchema = z.object({
+  firstName: z.string().min(2, 'First name must be at least 2 characters'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
+});
+
 export const registerSchema = z.object({
     firstName: z.string().min(2, 'First name must be at least 2 characters'),
     lastName: z.string().min(2, 'Last name must be at least 2 characters'),
@@ -18,6 +23,7 @@ export const registerSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type UserProfileInput = z.infer<typeof userProfileSchema>;
 
 export interface User {
     uuid: string;

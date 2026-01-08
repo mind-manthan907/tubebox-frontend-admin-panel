@@ -30,7 +30,7 @@ export const useLogin = () => {
                 // Optionally logout if user is not admin but authenticated as regular user
                 await useAuthStore.getState().logout();
             }
-        } catch (error: any) {
+        } catch (error) {
             const message = error instanceof Error ? error.message : 'Authentication failed';
             toast.error(message);
             // Reset only password field

@@ -1,8 +1,8 @@
-import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { registerSchema, type RegisterInput } from '@/domain/auth/auth.schema';
+import { registerSchema, type RegisterInput, type ApiResponse } from '@/domain/auth/auth.schema';
 import { useAuthStore } from '@/infrastructure/store/useAuthStore';
 
 export const useRegister = () => {
@@ -23,26 +23,19 @@ export const useRegister = () => {
     const onSubmit = async (data: RegisterInput) => {
         try {
             await registerUser(data);
-            toast.success('Admin account created. Please sign in.');
+            toast.success('Registration successful! Please login.');
             navigate('/login');
-        } catch (error: any) {
-            // Handle validation errors from API
-            if (error.errors && Array.isArray(error.errors)) {
-                error.errors.forEach((err: any) => {
-                    form.setError(err.field as any, {
-                        type: 'manual',
-                        message: err.message
+        } catch (error) {
+            const apiError = error as ApiResponse<null>;
+            if (apiError.errors) {
+                apiError.errors.forEach((err) => {
+                    form.setError(err.field as keyof RegisterInput, {
+                        message: err.message,
                     });
                 });
-                toast.error(error.message || 'Validation failed');
             } else {
-                const message = error instanceof Error ? error.message : 'Registration failed';
-                toast.error(message);
+                toast.error(apiError.message || 'Registration failed');
             }
-
-            // Reset only password fields
-            form.setValue('password', '');
-            form.setValue('confirmPassword', '');
         }
     };
 
